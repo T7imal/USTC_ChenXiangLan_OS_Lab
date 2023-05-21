@@ -81,5 +81,6 @@ void pMemInit(void) {
 	}
 
 	// 此处选择不同的内存管理算法
-	pMemHandler = dPartitionInit(pMemStart, pMemSize);
+	kpMemHandler = dPartitionInit(pMemStart, 0x100000);	//用户内存管理
+	pMemHandler = dPartitionInit(pMemStart + 0x100000, pMemSize - 0x100000);	//内核内存管理
 }

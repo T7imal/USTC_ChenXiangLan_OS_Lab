@@ -8,6 +8,7 @@
 
 extern void myMain(void);
 unsigned long pMemHandler;
+unsigned long kpMemHandler;
 
 // void pressAnyKeyToStart(void){
 // 	myPrintk(0x5,"Prepare uart device\n");
