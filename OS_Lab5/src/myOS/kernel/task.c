@@ -38,7 +38,7 @@ readyQueueFCFS rqFCFS;
 //初始化就绪队列（需要填写）
 void rqFCFSInit(myTCB* idleTask) {//对rqFCFS进行初始化处理
      rqFCFS.idleTask = idleTask;
-}
+}    //idleTask不入队
 
 //如果就绪队列为空，返回True（需要填写）
 int rqFCFSIsEmpty(void) {//当head和tail均为NULL时，rqFCFS为空
@@ -54,7 +54,7 @@ myTCB* nextFCFSTask(void) {//获取下一个Task
           return &tcbPool[1];
      }
      return rqFCFS.head;
-}
+}    //若队列为空（如运行0号进程时），返回1号进程的地址
 
 //将一个未在就绪队列中的TCB加入到就绪队列中（需要填写）
 void taskEnqueueFCFS(myTCB* task) {//将task入队rqFCFS
@@ -70,6 +70,10 @@ void taskEnqueueFCFS(myTCB* task) {//将task入队rqFCFS
 
 //将就绪队列中的TCB移除（需要填写）
 void taskDequeueFCFS(myTCB* task) {//rqFCFS出队
+     if (rqFCFS.head == rqFCFS.tail) {
+          rqFCFS.head = NULL;
+          rqFCFS.tail = NULL;
+     }
      rqFCFS.head = rqFCFS.head->nextTCB;
 }
 
@@ -113,6 +117,7 @@ int createTask(void (*taskBody)(void)) {//在进程池中创建一个进程，�
      myTCB* task = firstFreeTask;
      task->task_entrance = taskBody;
      stack_init(&(task->stackTop), taskBody);
+     task->TASK_State = TASK_WAIT;
      taskStart(task);
      for (int i = 0;i < TASK_NUM;++i) {
           if (tcbPool[i].TASK_State == TASK_NONE) {
@@ -121,7 +126,9 @@ int createTask(void (*taskBody)(void)) {//在进程池中创建一个进程，�
           }
      }
      return task->TASK_ID;
-}
+}	//在firstFreeTask地址创建新进程，初始化栈空间，编辑进入函数，并入队
+     //遍历地址空间，找到第一个空闲的进程块，以其地址更新firstFreeTask
+     //（返回值没有用到？）
 
 //以taskIndex为关键字，在进程池中寻找并销毁taskIndex对应的进程（需要填写）
 void destroyTask(unsigned long taskIndex) {//在进程中寻找TASK_ID为taskIndex的进程，并销毁该进程
@@ -133,7 +140,7 @@ void destroyTask(unsigned long taskIndex) {//在进程中寻找TASK_ID为taskInd
      }
      myTCB* task = &tcbPool[i];
      task->TASK_State = TASK_NONE;
-}
+}	//遍历地址空间，找到第一个ID相同的进程块，将其状态设为空闲
 
 unsigned long** prevTASK_StackPtr;
 unsigned long* nextTASK_StackPtr;
